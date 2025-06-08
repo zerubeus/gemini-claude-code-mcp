@@ -1,5 +1,7 @@
 from google import genai
 
+from gemini_claude_code_mcp.config import settings
+
 
 def get_gemini_client():
     """Create and return a Google Gemini API client."""
