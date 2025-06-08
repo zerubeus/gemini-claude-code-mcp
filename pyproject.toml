@@ -1,0 +1,100 @@
+[project]
+name = "gemini-claude-code-mpc"
+dynamic = ["version"]
+description = "MPC server allowing Claude Caude to leverage Gemini massive context for large code bases analysis and understanding."
+authors = [{ name = "zerubeus", email = "zerubeus@gmail.com" }]
+license = "MIT"
+readme = "README.md"
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.12",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Internet",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+requires-python = ">=3.12"
+
+dependencies = ["pydantic>=2.10.6"]
+
+[dependency-groups]
+dev = ["colorlog>=6.9.0", "pyright>=1.1.390", "ruff>=0.6.9"]
+
+[project.scripts]
+gemini-claude-code-mpc = "gemini_claude_code_mpc.main:main"
+
+[project.urls]
+"Homepage" = "https://github.com/zerubeus/gemini-claude-code-mpc"
+"Bug Tracker" = "https://github.com/zerubeus/gemini-claude-code-mpc/issues"
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+include = ["gemini_claude_code_mpc/**/*.py"]
+
+[tool.ruff.lint]
+extend-select = [
+    "Q",      # Enforces consistent use of quotes (flake8-quotes)
+    "RUF100", # Checks for unused imports (ruff)
+    "RUF018", # Checks for assignments in assert statements, which might not execute in optimized runtimes (ruff) - https://docs.astral.sh/ruff/rules/assignment-in-assert/
+    "C90",    # Checks cyclomatic complexity to ensure code isn't too complex (mccabe)
+    "UP",     # Suggests upgrades to newer Python syntax or features (pyupgrade)
+    "I",      # Enforces sorting and organization of import statements (isort)
+    "D",      # Enforces conventions for docstrings (pydocstyle)
+    "TID251", # Bans certain types of relative imports for consistent import style (flake8-tidy-imports)
+]
+flake8-quotes = { inline-quotes = "single", multiline-quotes = "double" }
+isort = { combine-as-imports = true, known-first-party = [
+    "gemini_claude_code_mpc", # Treat the main package as first-party for import sorting
+] } # Sort imports
+mccabe = { max-complexity = 15 } # Check McCabe complexity
+ignore = [
+    "D100", # ignore missing docstring in module
+    "D102", # ignore missing docstring in public method
+    "D104", # ignore missing docstring in public package
+    "D105", # ignore missing docstring in magic methods
+    "D107", # ignore missing docstring in __init__ methods
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"typing.TypedDict".msg = "Use typing_extensions.TypedDict instead."
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint.per-file-ignores]
+"gemini_claude_code_mpc/**/*.py" = ["D", "TID251"]
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+reportUnnecessaryIsInstance = false
+reportUnnecessaryTypeIgnoreComment = true
+reportMissingModuleSource = false
+include = ["gemini_claude_code_mpc"]
+venvPath = ".venv"
+
+[build-system]
+requires = ["hatchling", "uv-dynamic-versioning>=0.7.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.hatch.build.targets.wheel]
+packages = ["gemini_claude_code_mpc"]
+
+[tool.uv-dynamic-versioning]
+vcs = "git"
+style = "pep440"
+bump = true
