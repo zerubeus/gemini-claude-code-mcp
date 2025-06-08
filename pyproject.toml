@@ -1,5 +1,5 @@
 [project]
-name = "gemini-claude-code-mpc"
+name = "gemini-claude-code-mcp"
 dynamic = ["version"]
 description = "MCP server allowing Claude Code to leverage Gemini's massive context for large code bases analysis and understanding."
 authors = [{ name = "zerubeus", email = "zerubeus@gmail.com" }]
@@ -23,7 +23,6 @@ requires-python = ">=3.12"
 
 dependencies = [
     "pydantic>=2.10.6",
-    "mcp>=1.0.0",
     "aiohttp>=3.11.0",
     "cachetools>=5.5.0",
     "pydantic-settings>=2.6.0",
@@ -35,6 +34,8 @@ dependencies = [
     "gitpython>=3.1.43",
     "rich>=13.9.0",
     "google-genai>=1.19.0",
+    "click>=8.1.0",
+    "fastmcp>=2.7.1",
 ]
 
 [dependency-groups]
@@ -53,13 +54,13 @@ dev = [
 gemini-claude-code-mpc = "gemini_claude_code_mpc.main:main"
 
 [project.urls]
-"Homepage" = "https://github.com/zerubeus/gemini-claude-code-mpc"
-"Bug Tracker" = "https://github.com/zerubeus/gemini-claude-code-mpc/issues"
+"Homepage" = "https://github.com/zerubeus/gemini-claude-code-mcp"
+"Bug Tracker" = "https://github.com/zerubeus/gemini-claude-code-mcp/issues"
 
 [tool.ruff]
 line-length = 120
 target-version = "py39"
-include = ["gemini_claude_code_mpc/**/*.py"]
+include = ["gemini_claude_code_mcp/**/*.py"]
 
 [tool.ruff.lint]
 extend-select = [
@@ -74,7 +75,7 @@ extend-select = [
 ]
 flake8-quotes = { inline-quotes = "single", multiline-quotes = "double" }
 isort = { combine-as-imports = true, known-first-party = [
-    "gemini_claude_code_mpc", # Treat the main package as first-party for import sorting
+    "gemini_claude_code_mcp", # Treat the main package as first-party for import sorting
 ] } # Sort imports
 mccabe = { max-complexity = 15 } # Check McCabe complexity
 ignore = [
@@ -104,7 +105,7 @@ reportMissingTypeStubs = false
 reportUnnecessaryIsInstance = false
 reportUnnecessaryTypeIgnoreComment = true
 reportMissingModuleSource = false
-include = ["gemini_claude_code_mpc"]
+include = ["gemini_claude_code_mcp"]
 venvPath = ".venv"
 
 [build-system]
@@ -115,7 +116,7 @@ build-backend = "hatchling.build"
 source = "uv-dynamic-versioning"
 
 [tool.hatch.build.targets.wheel]
-packages = ["gemini_claude_code_mpc"]
+packages = ["gemini_claude_code_mcp"]
 
 [tool.uv-dynamic-versioning]
 vcs = "git"
