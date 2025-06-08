@@ -1,1 +1,0 @@
-"""Data models for Gemini-Claude Code MCP server."""
