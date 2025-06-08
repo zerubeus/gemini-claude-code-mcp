@@ -9,7 +9,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class GeminiSettings(BaseSettings):
     """Settings for Google Gemini API."""
 
-    api_key: str = Field(description='Google API key for Gemini')
+    api_key: str = Field(default='', description='Google API key for Gemini')
     model: str = Field(default='gemini-2.0-flash-exp', description='Default Gemini model to use')
     max_tokens: int = Field(default=2000000, description='Maximum context size in tokens')
     temperature: float = Field(default=0.1, ge=0.0, le=2.0, description='Temperature for generation')
@@ -121,10 +121,10 @@ class Settings(BaseSettings):
     )
 
     # Sub-settings
-    gemini: GeminiSettings = Field(default_factory=lambda: GeminiSettings())
-    cache: CacheSettings = Field(default_factory=lambda: CacheSettings())
-    processing: ProcessingSettings = Field(default_factory=lambda: ProcessingSettings())
-    logging: LoggingSettings = Field(default_factory=lambda: LoggingSettings())
+    gemini: GeminiSettings = Field(default_factory=GeminiSettings)
+    cache: CacheSettings = Field(default_factory=CacheSettings)
+    processing: ProcessingSettings = Field(default_factory=ProcessingSettings)
+    logging: LoggingSettings = Field(default_factory=LoggingSettings)
 
     # Server settings
     server_name: str = Field(default='gemini-claude-code', description='MCP server name')
