@@ -1,11 +1,15 @@
 """Logging configuration for Gemini-Claude Code MCP server."""
 
 import asyncio
+import contextvars
+import functools
 import logging
 import logging.handlers
 import sys
+import time
+import types
 from pathlib import Path
-from typing import Optional
+from typing import Any, Callable, TypeVar, cast
 
 import structlog
 from rich.console import Console
@@ -14,7 +18,7 @@ from rich.logging import RichHandler
 from gemini_claude_code_mcp.config import settings
 
 
-def setup_logging(level: Optional[str] = None, log_file: Optional[str] = None, use_rich: bool = True) -> None:
+def setup_logging(level: str | None, log_file: str | None, use_rich: bool = True) -> None:
     """Set up logging configuration.
 
     Args:
@@ -109,64 +113,77 @@ def get_logger(name: str) -> structlog.BoundLogger:
 class LogContext:
     """Context manager for temporary log context."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         """Initialize with context variables."""
         self.context = kwargs
-        self._tokens = []
+        self._tokens: list[contextvars.Token[Any]] = []
 
     def __enter__(self):
         """Enter context and bind variables."""
         for key, value in self.context.items():
-            token = structlog.contextvars.bind_contextvars(**{key: value})
-            self._tokens.append(token)
+            token_mapping = structlog.contextvars.bind_contextvars(**{key: value})
+            # Extract individual tokens from the mapping
+            for token in token_mapping.values():
+                self._tokens.append(token)
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: types.TracebackType | None,
+    ) -> None:
         """Exit context and clear variables."""
-        for token in self._tokens:
-            structlog.contextvars.unbind_contextvars(token)
+        # Clear all context variables at once
+        structlog.contextvars.clear_contextvars()
+        # Return None to propagate any exception
+        return None
 
 
-def log_performance(func):
+# Type variables for the decorator
+T = TypeVar('T')
+F = TypeVar('F', bound=Callable[..., Any])
+
+
+def log_performance(func: F) -> F:
     """Decorator to log function performance."""
-    import functools
-    import time
-
-    @functools.wraps(func)
-    async def async_wrapper(*args, **kwargs):
-        logger = get_logger(func.__module__)
-        start_time = time.time()
-
-        try:
-            result = await func(*args, **kwargs)
-            duration = time.time() - start_time
-            logger.info('Function completed', function=func.__name__, duration=f'{duration:.3f}s', status='success')
-            return result
-        except Exception as e:
-            duration = time.time() - start_time
-            logger.error(
-                'Function failed', function=func.__name__, duration=f'{duration:.3f}s', status='error', error=str(e)
-            )
-            raise
-
-    @functools.wraps(func)
-    def sync_wrapper(*args, **kwargs):
-        logger = get_logger(func.__module__)
-        start_time = time.time()
-
-        try:
-            result = func(*args, **kwargs)
-            duration = time.time() - start_time
-            logger.info('Function completed', function=func.__name__, duration=f'{duration:.3f}s', status='success')
-            return result
-        except Exception as e:
-            duration = time.time() - start_time
-            logger.error(
-                'Function failed', function=func.__name__, duration=f'{duration:.3f}s', status='error', error=str(e)
-            )
-            raise
-
     if asyncio.iscoroutinefunction(func):
-        return async_wrapper
+
+        @functools.wraps(func)
+        async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+            logger = get_logger(func.__module__)
+            start_time = time.time()
+
+            try:
+                result = await func(*args, **kwargs)
+                duration = time.time() - start_time
+                logger.info('Function completed', function=func.__name__, duration=f'{duration:.3f}s', status='success')
+                return result
+            except Exception as e:
+                duration = time.time() - start_time
+                logger.error(
+                    'Function failed', function=func.__name__, duration=f'{duration:.3f}s', status='error', error=str(e)
+                )
+                raise
+
+        return cast(F, async_wrapper)
     else:
-        return sync_wrapper
+
+        @functools.wraps(func)
+        def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            logger = get_logger(func.__module__)
+            start_time = time.time()
+
+            try:
+                result = func(*args, **kwargs)
+                duration = time.time() - start_time
+                logger.info('Function completed', function=func.__name__, duration=f'{duration:.3f}s', status='success')
+                return result
+            except Exception as e:
+                duration = time.time() - start_time
+                logger.error(
+                    'Function failed', function=func.__name__, duration=f'{duration:.3f}s', status='error', error=str(e)
+                )
+                raise
+
+        return cast(F, sync_wrapper)
