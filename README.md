@@ -22,7 +22,7 @@ This MCP (Model Context Protocol) server bridges Claude Code with Google's Gemin
 ```
 ┌─────────────────┐         ┌──────────────────┐         ┌─────────────────┐
 │   Claude Code   │ <-----> │   MCP Server     │ <-----> │  Gemini API     │
-│                 │   MCP    │                  │  HTTP   │                 │
+│                 │   MCP   │                  │  HTTP   │                 │
 │  (Reasoning &   │         │  (Bridge Layer)  │         │ (Large Context  │
 │   Execution)    │         │                  │         │   Processing)   │
 └─────────────────┘         └──────────────────┘         └─────────────────┘
