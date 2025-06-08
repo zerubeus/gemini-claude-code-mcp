@@ -11,7 +11,7 @@ import structlog
 from rich.console import Console
 from rich.logging import RichHandler
 
-from gemini_claude_code_mpc.config import settings
+from gemini_claude_code_mcp.config import settings
 
 
 def setup_logging(level: Optional[str] = None, log_file: Optional[str] = None, use_rich: bool = True) -> None:
