@@ -3,16 +3,17 @@
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional, List, Dict
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 
 class ChunkingStrategy(str, Enum):
     """Strategy for chunking large content."""
-    SIMPLE = "simple"
-    CODE_AWARE = "code_aware"
-    SEMANTIC = "semantic"
+
+    SIMPLE = 'simple'
+    CODE_AWARE = 'code_aware'
+    SEMANTIC = 'semantic'
 
 
 class FileContent(BaseModel):
@@ -22,7 +23,7 @@ class FileContent(BaseModel):
     content: str = Field(description='File content')
     size: int = Field(description='File size in bytes')
     modified: datetime = Field(description='Last modified timestamp')
-    language: Optional[str] = Field(default=None, description='Programming language')
+    language: str | None = Field(default=None, description='Programming language')
     encoding: str = Field(default='utf-8', description='File encoding')
 
 
@@ -33,7 +34,7 @@ class ContextChunk(BaseModel):
     start_line: int = Field(description='Start line number in original content')
     end_line: int = Field(description='End line number in original content')
     token_count: int = Field(description='Number of tokens in chunk')
-    metadata: Dict[str, Any] = Field(default_factory=dict, description='Additional metadata')
+    metadata: dict[str, Any] = Field(default_factory=dict, description='Additional metadata')
 
 
 class AnalysisRequest(BaseModel):
@@ -42,7 +43,7 @@ class AnalysisRequest(BaseModel):
     query: str = Field(description='Analysis query')
     content: str = Field(description='Content to analyze')
     chunking_strategy: ChunkingStrategy = Field(default=ChunkingStrategy.CODE_AWARE, description='Chunking strategy')
-    context_metadata: Dict[str, Any] = Field(default_factory=dict, description='Additional context metadata')
+    context_metadata: dict[str, Any] = Field(default_factory=dict, description='Additional context metadata')
 
 
 class AnalysisResult(BaseModel):
@@ -53,27 +54,27 @@ class AnalysisResult(BaseModel):
     total_tokens: int = Field(description='Total tokens processed')
     chunks_processed: int = Field(description='Number of chunks processed')
     used_gemini: bool = Field(description='Whether Gemini was used')
-    response: Optional[str] = Field(description='Analysis response')
-    metadata: Dict[str, Any] = Field(default_factory=dict, description='Additional metadata')
+    response: str | None = Field(description='Analysis response')
+    metadata: dict[str, Any] = Field(default_factory=dict, description='Additional metadata')
 
 
 class FilePattern(BaseModel):
     """Pattern for matching files."""
-    
-    include: List[str] = Field(default_factory=list, description='Patterns to include')
-    exclude: List[str] = Field(default_factory=list, description='Patterns to exclude')
+
+    include: list[str] = Field(default_factory=list, description='Patterns to include')
+    exclude: list[str] = Field(default_factory=list, description='Patterns to exclude')
     respect_gitignore: bool = Field(default=True, description='Respect .gitignore files')
 
 
 class CollectedFile(BaseModel):
     """Represents a collected file with metadata."""
-    
+
     path: str = Field(description='Absolute file path')
     relative_path: str = Field(description='Relative file path')
     content: str = Field(description='File content')
     size: int = Field(description='File size in bytes')
     token_count: int = Field(description='Token count')
-    language: Optional[str] = Field(default=None, description='Programming language')
+    language: str | None = Field(default=None, description='Programming language')
     relevance_score: float = Field(default=0.0, description='Relevance score')
 
 

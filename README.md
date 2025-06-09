@@ -6,7 +6,7 @@ Let Claude tap into Gemini's extended context window for smarter, bigger, and fa
 
 ## 🎯 Project Overview
 
-This MCP (Model Context Protocol) server bridges Claude Code with Google's Gemini models, enabling Claude to leverage Gemini's massive context window (up to 2M tokens) for processing large codebases, extensive documentation, and complex multi-file analysis tasks that would otherwise exceed Claude's native context limits.
+This MCP (Model Context Protocol) server bridges Claude Code with Google's Gemini models, enabling Claude to leverage Gemini's massive context window (up to 1M tokens) for processing large codebases, extensive documentation, and complex multi-file analysis tasks that would otherwise exceed Claude's native context limits.
 
 ### Key Benefits
 

@@ -27,6 +27,7 @@ class GeminiSettings(BaseSettings):
             'gemini-1.5-flash',
             'gemini-1.5-flash-002',
             'gemini-1.5-flash-8b',
+            'gemini-2.5-pro-preview-06-05',  # Add newer model
         ]
         if v not in valid_models:
             raise ValueError(f'Model must be one of {valid_models}')
@@ -116,7 +117,7 @@ class LoggingSettings(BaseSettings):
 
 class ContextLimits(BaseSettings):
     """Context size limits for different models."""
-    
+
     claude_max_tokens: int = Field(default=200000, description='Claude max context tokens')
     gemini_max_tokens: int = Field(default=2000000, description='Gemini max context tokens')
 
@@ -146,7 +147,7 @@ class Settings(BaseSettings):
     # Security settings
     rate_limit_requests: int = Field(default=100, description='Maximum requests per minute')
     rate_limit_window: int = Field(default=60, description='Rate limit window in seconds')
-    
+
     # Cache settings (for LargeContextAnalyzer)
     cache_max_size: int = Field(default=100, description='Max number of cached analysis results')
     cache_ttl_seconds: int = Field(default=3600, description='Cache TTL in seconds')
