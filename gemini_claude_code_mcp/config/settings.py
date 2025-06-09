@@ -114,6 +114,13 @@ class LoggingSettings(BaseSettings):
     backup_count: int = Field(default=5, description='Number of backup log files to keep')
 
 
+class ContextLimits(BaseSettings):
+    """Context size limits for different models."""
+    
+    claude_max_tokens: int = Field(default=200000, description='Claude max context tokens')
+    gemini_max_tokens: int = Field(default=2000000, description='Gemini max context tokens')
+
+
 class Settings(BaseSettings):
     """Main settings for the MCP server."""
 
@@ -126,6 +133,7 @@ class Settings(BaseSettings):
     cache: CacheSettings = Field(default_factory=CacheSettings)
     processing: ProcessingSettings = Field(default_factory=ProcessingSettings)
     logging: LoggingSettings = Field(default_factory=LoggingSettings)
+    context_limits: ContextLimits = Field(default_factory=ContextLimits)
 
     # Server settings
     server_name: str = Field(default='gemini-claude-code', description='MCP server name')
@@ -138,6 +146,10 @@ class Settings(BaseSettings):
     # Security settings
     rate_limit_requests: int = Field(default=100, description='Maximum requests per minute')
     rate_limit_window: int = Field(default=60, description='Rate limit window in seconds')
+    
+    # Cache settings (for LargeContextAnalyzer)
+    cache_max_size: int = Field(default=100, description='Max number of cached analysis results')
+    cache_ttl_seconds: int = Field(default=3600, description='Cache TTL in seconds')
 
 
 # Create a singleton settings instance

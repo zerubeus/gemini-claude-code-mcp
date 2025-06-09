@@ -1,10 +1,18 @@
 """Context models for managing large code contexts."""
 
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, List, Dict
 
 from pydantic import BaseModel, Field
+
+
+class ChunkingStrategy(str, Enum):
+    """Strategy for chunking large content."""
+    SIMPLE = "simple"
+    CODE_AWARE = "code_aware"
+    SEMANTIC = "semantic"
 
 
 class FileContent(BaseModel):
@@ -21,37 +29,52 @@ class FileContent(BaseModel):
 class ContextChunk(BaseModel):
     """Model for a chunk of context."""
 
-    id: str = Field(description='Unique chunk identifier')
     content: str = Field(description='Chunk content')
+    start_line: int = Field(description='Start line number in original content')
+    end_line: int = Field(description='End line number in original content')
     token_count: int = Field(description='Number of tokens in chunk')
-    files: list[str] = Field(description='Files included in this chunk')
-    start_index: int = Field(description='Start index in original context')
-    end_index: int = Field(description='End index in original context')
-    overlap_previous: Optional[str] = Field(default=None, description='ID of previous chunk with overlap')
-    overlap_next: Optional[str] = Field(default=None, description='ID of next chunk with overlap')
+    metadata: Dict[str, Any] = Field(default_factory=dict, description='Additional metadata')
 
 
 class AnalysisRequest(BaseModel):
     """Model for analysis request."""
 
-    files: list[str] = Field(description='Files or patterns to analyze')
     query: str = Field(description='Analysis query')
-    model: str = Field(default='gemini-2.0-flash-exp', description='Model to use')
-    max_chunks: Optional[int] = Field(default=None, description='Maximum number of chunks to process')
-    include_dependencies: bool = Field(default=True, description='Include file dependencies in context')
+    content: str = Field(description='Content to analyze')
+    chunking_strategy: ChunkingStrategy = Field(default=ChunkingStrategy.CODE_AWARE, description='Chunking strategy')
+    context_metadata: Dict[str, Any] = Field(default_factory=dict, description='Additional context metadata')
 
 
 class AnalysisResult(BaseModel):
     """Model for analysis result."""
 
     query: str = Field(description='Original query')
-    response: str = Field(description='Analysis response')
-    chunks_processed: int = Field(description='Number of chunks processed')
+    content: str = Field(description='Original content')
     total_tokens: int = Field(description='Total tokens processed')
-    files_analyzed: list[str] = Field(description='Files that were analyzed')
-    model_used: str = Field(description='Gemini model used')
-    processing_time: float = Field(description='Processing time in seconds')
-    cached: bool = Field(default=False, description='Whether result was cached')
+    chunks_processed: int = Field(description='Number of chunks processed')
+    used_gemini: bool = Field(description='Whether Gemini was used')
+    response: Optional[str] = Field(description='Analysis response')
+    metadata: Dict[str, Any] = Field(default_factory=dict, description='Additional metadata')
+
+
+class FilePattern(BaseModel):
+    """Pattern for matching files."""
+    
+    include: List[str] = Field(default_factory=list, description='Patterns to include')
+    exclude: List[str] = Field(default_factory=list, description='Patterns to exclude')
+    respect_gitignore: bool = Field(default=True, description='Respect .gitignore files')
+
+
+class CollectedFile(BaseModel):
+    """Represents a collected file with metadata."""
+    
+    path: str = Field(description='Absolute file path')
+    relative_path: str = Field(description='Relative file path')
+    content: str = Field(description='File content')
+    size: int = Field(description='File size in bytes')
+    token_count: int = Field(description='Token count')
+    language: Optional[str] = Field(default=None, description='Programming language')
+    relevance_score: float = Field(default=0.0, description='Relevance score')
 
 
 class CodebaseSnapshot(BaseModel):

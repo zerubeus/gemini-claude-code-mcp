@@ -30,35 +30,48 @@ Build an MCP server that enables Claude Code to leverage Google Gemini's 2M toke
   - [x] Token counting and optimization
 - [x] Build streaming response handler for large outputs
 
-## Phase 3: MCP Tools Implementation 🛠️
+## Phase 3: Core Services Implementation 🔧
 
-- [ ] `analyze_large_context` tool
-  - [ ] File pattern matching and collection
-  - [ ] Context assembly and chunking
-  - [ ] Query routing to Gemini
-  - [ ] Response aggregation and formatting
-- [ ] `summarize_codebase` tool
-  - [ ] Directory traversal with gitignore respect
-  - [ ] Intelligent file filtering
-  - [ ] Multi-level summary generation
-  - [ ] Focus area prioritization
-- [ ] `cross_file_analysis` tool
-  - [ ] Dependency graph construction
-  - [ ] Interface detection
-  - [ ] Data flow analysis
-  - [ ] Security pattern scanning
-- [ ] `context_search` tool
-  - [ ] Semantic search implementation
-  - [ ] Keyword fallback
-  - [ ] Result ranking and filtering
-  - [ ] Context snippet extraction
-- [ ] `code_generation` tool
-  - [ ] Context-aware generation
-  - [ ] Style guide parsing
-  - [ ] Multi-file coherence
-  - [ ] Import management
+- [x] `LargeContextAnalyzer` service
+  - [x] Automatic context size detection
+  - [x] Intelligent chunking with code boundary respect
+  - [x] Gemini API orchestration
+  - [x] Response aggregation and caching
+- [x] `FileCollector` service
+  - [x] Pattern matching and file discovery
+  - [x] Gitignore and exclude pattern handling
+  - [x] Incremental file loading
+  - [x] Context relevance scoring
 
-## Phase 4: Context Management System 🧠
+## Phase 4: MCP Tools Implementation 🛠️
+
+- [ ] `summarize_project` tool
+  - [ ] Accepts: directory path, focus areas (optional)
+  - [ ] Returns: Multi-level project summary
+  - [ ] Uses: LargeContextAnalyzer for files > Claude's limit
+  - [ ] Features: Architecture detection, tech stack analysis
+- [ ] `explain_codebase` tool
+  - [ ] Accepts: query, file patterns (optional)
+  - [ ] Returns: Detailed explanation with examples
+  - [ ] Uses: FileCollector + LargeContextAnalyzer
+  - [ ] Features: Cross-file understanding, dependency tracking
+- [ ] `find_implementation` tool
+  - [ ] Accepts: feature/function description
+  - [ ] Returns: Relevant code locations and explanations
+  - [ ] Uses: Semantic search across large codebases
+  - [ ] Features: Ranked results, context snippets
+- [ ] `analyze_dependencies` tool
+  - [ ] Accepts: file paths or module names
+  - [ ] Returns: Dependency graph and impact analysis
+  - [ ] Uses: LargeContextAnalyzer for deep analysis
+  - [ ] Features: Circular dependency detection, interface mapping
+- [ ] `generate_code` tool
+  - [ ] Accepts: requirements, target location, style guide
+  - [ ] Returns: Generated code following project patterns
+  - [ ] Uses: Context from entire codebase via services
+  - [ ] Features: Import resolution, style matching
+
+## Phase 5: Context Management System 🧠
 
 - [ ] Implement context caching layer
   - [ ] LRU cache with configurable size
@@ -74,7 +87,7 @@ Build an MCP server that enables Claude Code to leverage Google Gemini's 2M toke
   - [ ] Budget allocation between models
   - [ ] Context compression techniques
 
-## Phase 5: Advanced Features 🎯
+## Phase 6: Advanced Features 🎯
 
 - [ ] Implement conversation memory
   - [ ] Session state management
@@ -89,7 +102,7 @@ Build an MCP server that enables Claude Code to leverage Google Gemini's 2M toke
   - [ ] Token usage analytics
   - [ ] Response time tracking
 
-## Phase 6: Testing & Quality Assurance ✅
+## Phase 7: Testing & Quality Assurance ✅
 
 - [ ] Unit tests for all components
   - [ ] Mock Gemini API responses
@@ -104,7 +117,7 @@ Build an MCP server that enables Claude Code to leverage Google Gemini's 2M toke
   - [ ] Concurrent request handling
   - [ ] Cache effectiveness metrics
 
-## Phase 7: Documentation & Examples 📚
+## Phase 8: Documentation & Examples 📚
 
 - [ ] API documentation
   - [ ] Tool parameter schemas
@@ -119,7 +132,7 @@ Build an MCP server that enables Claude Code to leverage Google Gemini's 2M toke
   - [ ] Advanced configuration options
   - [ ] Troubleshooting guide
 
-## Phase 8: Production Readiness 🚀
+## Phase 9: Production Readiness 🚀
 
 - [ ] Error handling improvements
   - [ ] Graceful degradation
