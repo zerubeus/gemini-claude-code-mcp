@@ -14,6 +14,7 @@ class GeminiSettings(BaseSettings):
     max_tokens: int = Field(default=2000000, description='Maximum context size in tokens')
     temperature: float = Field(default=0.1, ge=0.0, le=2.0, description='Temperature for generation')
     timeout: int = Field(default=300, description='API timeout in seconds')
+    max_output_tokens: int = Field(default=1000, ge=1, le=2000000, description='Maximum output tokens per request')
 
     @field_validator('model')
     @classmethod

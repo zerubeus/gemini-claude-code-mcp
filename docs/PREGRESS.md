@@ -1,9 +1,11 @@
 # Gemini-Claude Code MCP Implementation Plan
 
 ## Project Overview
+
 Build an MCP server that enables Claude Code to leverage Google Gemini's 2M token context window for processing large codebases and documentation that exceed Claude's native limits.
 
 ## Phase 1: Core Infrastructure Setup ✅
+
 - [x] Set up project structure with proper Python packaging
 - [x] Configure pyproject.toml with required dependencies
   - [x] mcp SDK
@@ -17,10 +19,10 @@ Build an MCP server that enables Claude Code to leverage Google Gemini's 2M toke
 - [x] Set up logging infrastructure
 
 ## Phase 2: Gemini Integration 🚀
-- [ ] Create `services/gemini_manager.py` with Google AI SDK integration
-  - [ ] Initialize Gemini client with API key authentication
-  - [ ] Implement model selection (gemini-1.5-pro-002, gemini-1.5-flash)
-  - [ ] Create async methods for API calls
+
+- [x] Create `services/gemini.py` with Google AI SDK integration
+  - [x] Initialize Gemini client with API key authentication
+  - [x] Create async methods for API calls
   - [ ] Handle rate limiting and retries
 - [ ] Implement context chunking strategy
   - [ ] Smart chunking algorithm that respects code boundaries
@@ -29,12 +31,13 @@ Build an MCP server that enables Claude Code to leverage Google Gemini's 2M toke
 - [ ] Build streaming response handler for large outputs
 
 ## Phase 3: MCP Tools Implementation 🛠️
+
 - [ ] `analyze_large_context` tool
   - [ ] File pattern matching and collection
   - [ ] Context assembly and chunking
   - [ ] Query routing to Gemini
   - [ ] Response aggregation and formatting
-- [ ] `summarize_codebase` tool  
+- [ ] `summarize_codebase` tool
   - [ ] Directory traversal with gitignore respect
   - [ ] Intelligent file filtering
   - [ ] Multi-level summary generation
@@ -56,6 +59,7 @@ Build an MCP server that enables Claude Code to leverage Google Gemini's 2M toke
   - [ ] Import management
 
 ## Phase 4: Context Management System 🧠
+
 - [ ] Implement context caching layer
   - [ ] LRU cache with configurable size
   - [ ] Cache key generation strategy
@@ -71,6 +75,7 @@ Build an MCP server that enables Claude Code to leverage Google Gemini's 2M toke
   - [ ] Context compression techniques
 
 ## Phase 5: Advanced Features 🎯
+
 - [ ] Implement conversation memory
   - [ ] Session state management
   - [ ] Context carry-over between calls
@@ -85,6 +90,7 @@ Build an MCP server that enables Claude Code to leverage Google Gemini's 2M toke
   - [ ] Response time tracking
 
 ## Phase 6: Testing & Quality Assurance ✅
+
 - [ ] Unit tests for all components
   - [ ] Mock Gemini API responses
   - [ ] Test context chunking edge cases
@@ -99,6 +105,7 @@ Build an MCP server that enables Claude Code to leverage Google Gemini's 2M toke
   - [ ] Cache effectiveness metrics
 
 ## Phase 7: Documentation & Examples 📚
+
 - [ ] API documentation
   - [ ] Tool parameter schemas
   - [ ] Response format specifications
@@ -113,6 +120,7 @@ Build an MCP server that enables Claude Code to leverage Google Gemini's 2M toke
   - [ ] Troubleshooting guide
 
 ## Phase 8: Production Readiness 🚀
+
 - [ ] Error handling improvements
   - [ ] Graceful degradation
   - [ ] Retry logic refinement
@@ -129,24 +137,28 @@ Build an MCP server that enables Claude Code to leverage Google Gemini's 2M toke
 ## Technical Decisions & Rationale
 
 ### Why Google AI SDK?
+
 - Official support and maintenance
 - Better integration with Gemini features
 - Automatic handling of streaming, retries, and errors
 - Type-safe interfaces with full IDE support
 
 ### Architecture Choices
+
 - **Async-first**: All I/O operations use asyncio for better concurrency
 - **Modular design**: Clear separation between MCP protocol, Gemini integration, and business logic
 - **Caching layer**: Reduces API costs and improves response times
 - **Progressive loading**: Optimizes token usage by loading context on-demand
 
 ### Context Management Strategy
+
 1. **Smart Chunking**: Respects code boundaries (functions, classes) when splitting
 2. **Overlap Windows**: Maintains context continuity between chunks
 3. **Relevance Scoring**: Prioritizes most relevant code sections
 4. **Token Budgeting**: Allocates tokens optimally between context and generation
 
 ## Success Metrics
+
 - [ ] Successfully process 1M+ token codebases
 - [ ] < 5s response time for most operations
 - [ ] 90%+ cache hit rate for repeated queries
