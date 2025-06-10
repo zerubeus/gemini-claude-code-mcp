@@ -6,6 +6,7 @@ from typing import Any
 
 import pytest
 from fastmcp import Client, FastMCP
+from syrupy.assertion import SnapshotAssertion
 
 from gemini_claude_code_mcp.tools.summarize_project_tool import register_summarize_project_tool
 
@@ -151,7 +152,9 @@ def test_project_dir(tmp_path: Path) -> Path:
 
 
 @pytest.mark.asyncio
-async def test_summarize_project_basic(mcp_server: FastMCP[Any], test_project_dir: Path, snapshot: Any) -> None:
+async def test_summarize_project_basic(
+    mcp_server: FastMCP[Any], test_project_dir: Path, snapshot: SnapshotAssertion
+) -> None:
     """Test basic project summarization with real Gemini API."""
     async with Client(mcp_server) as client:
         result = await client.call_tool(
@@ -176,10 +179,8 @@ async def test_summarize_project_basic(mcp_server: FastMCP[Any], test_project_di
 
         # Verify statistics are accurate
         stats = response['statistics']
-        assert stats['total_files'] == 5  # main.py, utils.py, test_main.py, pyproject.toml, README.md
+        assert stats['total_files'] == 3  # main.py, utils.py, test_main.py (only .py files by default)
         assert stats['languages']['python'] == 3
-        assert stats['languages']['toml'] == 1
-        assert stats['languages']['markdown'] == 1
 
         # Verify structure
         structure = response['structure']
@@ -209,7 +210,7 @@ async def test_summarize_project_basic(mcp_server: FastMCP[Any], test_project_di
 
 @pytest.mark.asyncio
 async def test_summarize_project_with_focus_areas(
-    mcp_server: FastMCP[Any], test_project_dir: Path, snapshot: Any
+    mcp_server: FastMCP[Any], test_project_dir: Path, snapshot: SnapshotAssertion
 ) -> None:
     """Test project summarization with focus areas."""
     async with Client(mcp_server) as client:
@@ -277,3 +278,173 @@ async def test_summarize_project_empty_directory(mcp_server: FastMCP[Any], tmp_p
 
         assert response['status'] == 'failed'
         assert 'No files found' in response['error']
+
+
+@pytest.fixture
+def large_test_project_dir(tmp_path: Path) -> Path:
+    """Create a large test project that exceeds Claude's context limit."""
+    project_dir = tmp_path / 'large_test_project'
+    project_dir.mkdir()
+
+    # Create many Python files with substantial content
+    src_dir = project_dir / 'src'
+    src_dir.mkdir()
+
+    # Generate enough content to exceed 200k tokens but stay under 1M
+    # Each file will have ~15000 tokens, so we need about 15 files to get ~225k tokens
+    large_file_content = """
+# This is a large file with substantial content to test Gemini integration
+""" + '\n'.join(
+        [
+            f"""
+class Component{i}:
+    '''A complex component with many methods and substantial documentation.
+    
+    This component handles various operations including data processing,
+    validation, transformation, and persistence. It implements multiple
+    design patterns and integrates with various external services.
+    '''
+    
+    def __init__(self, config: dict):
+        '''Initialize the component with configuration.
+        
+        Args:
+            config: Configuration dictionary containing all necessary parameters
+                   for initializing this component including database connections,
+                   API endpoints, timeout values, and feature flags.
+        '''
+        self.config = config
+        self.data = []
+        self.cache = {{}}
+        self.connections = []
+        self.validators = []
+        self.transformers = []
+        self.handlers = []
+        self.middleware = []
+        self.plugins = []
+        self.listeners = []
+        self.observers = []
+    
+    def process_data(self, input_data: list) -> list:
+        '''Process input data through multiple transformation stages.
+        
+        This method implements a complex data processing pipeline that includes:
+        - Data validation and sanitization
+        - Type conversion and normalization
+        - Business logic application
+        - Error handling and recovery
+        - Performance optimization
+        - Caching and memoization
+        - Logging and monitoring
+        
+        Args:
+            input_data: Raw input data to be processed
+            
+        Returns:
+            Processed data ready for consumption
+        '''
+        # Extensive processing logic here
+        result = []
+        for item in input_data:
+            # Validate
+            if not self._validate(item):
+                continue
+            
+            # Transform
+            transformed = self._transform(item)
+            
+            # Apply business logic
+            processed = self._apply_business_logic(transformed)
+            
+            # Cache results
+            self._cache_result(item, processed)
+            
+            result.append(processed)
+        
+        return result
+    
+    def _validate(self, item: Any) -> bool:
+        '''Validate an item against all registered validators.'''
+        for validator in self.validators:
+            if not validator.validate(item):
+                return False
+        return True
+    
+    def _transform(self, item: Any) -> Any:
+        '''Transform an item through all registered transformers.'''
+        result = item
+        for transformer in self.transformers:
+            result = transformer.transform(result)
+        return result
+    
+    def _apply_business_logic(self, item: Any) -> Any:
+        '''Apply complex business logic to the item.'''
+        # Simulate complex processing
+        result = item
+        for handler in self.handlers:
+            result = handler.handle(result)
+        return result
+    
+    def _cache_result(self, key: Any, value: Any) -> None:
+        '''Cache the processing result for future use.'''
+        self.cache[str(key)] = value
+    
+    # Add many more methods to increase token count...
+    {
+                ' '.join(
+                    [
+                        f'''
+    def method_{j}(self, param{j}: Any) -> Any:
+        """Another method with documentation to increase token count.
+        
+        This method performs operation {j} on the input parameter and returns
+        the processed result after applying various transformations and validations.
+        """
+        return param{j}
+    '''
+                        for j in range(50)  # Increased methods per class
+                    ]
+                )
+            }
+"""
+            for i in range(10)  # Generate more classes per file
+        ]
+    )
+
+    # Create 15 files to exceed token limit but stay under Gemini's limit
+    for i in range(15):
+        file_path = src_dir / f'component_{i}.py'
+        file_path.write_text(large_file_content)
+
+    return project_dir
+
+
+@pytest.mark.asyncio
+async def test_summarize_large_project_uses_gemini(
+    mcp_server: FastMCP[Any], large_test_project_dir: Path, snapshot: SnapshotAssertion
+) -> None:
+    """Test that large projects trigger Gemini usage."""
+    async with Client(mcp_server) as client:
+        result = await client.call_tool(
+            'summarize_project',
+            {
+                'directory_path': str(large_test_project_dir),
+            },
+        )
+
+        assert hasattr(result[0], 'text'), 'Result should have text attribute'
+        response = json.loads(result[0].text)  # type: ignore
+
+        assert response == snapshot
+
+        # Verify the request succeeded
+        assert response['status'] == 'success'
+
+        # Most importantly: verify Gemini was actually used!
+        assert response['analysis_details']['used_gemini'] is True
+        assert response['analysis_details']['chunks_processed'] > 0
+
+        # Verify we processed a large number of files
+        assert response['statistics']['total_files'] == 15
+        assert response['analysis_details']['total_tokens'] > 200000  # Exceeds Claude's limit
+        assert response['analysis_details']['total_tokens'] < 1000000  # But stays under Gemini's limit

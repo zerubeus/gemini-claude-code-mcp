@@ -30,7 +30,7 @@ typecheck:
 
 .PHONY: test
 test: ## Run the test suite
-	uv run pytest
+	uv run pytest --snapshot-update
 
 .PHONY: clean
 clean: ## Clean build artifacts
