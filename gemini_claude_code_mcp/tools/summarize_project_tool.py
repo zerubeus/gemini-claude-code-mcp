@@ -164,14 +164,14 @@ def register_summarize_project_tool(mcp: FastMCP[Any]):
 
 def _generate_project_structure(project_path: Path, collected_files: list[Any]) -> dict[str, Any]:
     """Generate a hierarchical representation of the project structure."""
-    structure = {'name': project_path.name, 'type': 'directory', 'children': {}}
+    structure: dict[str, Any] = {'name': project_path.name, 'type': 'directory', 'children': {}}
 
     for file in collected_files:
         relative_path = Path(file.relative_path)
         parts = relative_path.parts
 
-        current = structure['children']
-        for i, part in enumerate(parts[:-1]):
+        current: dict[str, Any] = structure['children']
+        for part in parts[:-1]:
             if part not in current:
                 current[part] = {'type': 'directory', 'children': {}}
             current = current[part]['children']
@@ -190,7 +190,7 @@ def _generate_project_structure(project_path: Path, collected_files: list[Any]) 
 
 def _combine_file_contents(collected_files: list[Any], project_path: Path) -> str:
     """Combine file contents with metadata headers."""
-    combined_parts = []
+    combined_parts: list[str] = []
 
     # Add project overview
     combined_parts.append(f'# Project: {project_path.name}')
@@ -214,7 +214,7 @@ def _combine_file_contents(collected_files: list[Any], project_path: Path) -> st
 
 def _generate_statistics(collected_files: list[Any]) -> dict[str, Any]:
     """Generate project statistics."""
-    stats = {
+    stats: dict[str, Any] = {
         'total_files': len(collected_files),
         'total_size_bytes': sum(f.size for f in collected_files),
         'total_tokens': sum(f.token_count for f in collected_files),
@@ -225,11 +225,15 @@ def _generate_statistics(collected_files: list[Any]) -> dict[str, Any]:
     # Count by language
     for file in collected_files:
         lang = file.language or 'unknown'
-        stats['languages'][lang] = stats['languages'].get(lang, 0) + 1
+        if lang not in stats['languages']:
+            stats['languages'][lang] = 0
+        stats['languages'][lang] += 1
 
         # Count by extension
         ext = Path(file.relative_path).suffix or 'no_extension'
-        stats['file_types'][ext] = stats['file_types'].get(ext, 0) + 1
+        if ext not in stats['file_types']:
+            stats['file_types'][ext] = 0
+        stats['file_types'][ext] += 1
 
     # Sort languages by count
     stats['languages'] = dict(sorted(stats['languages'].items(), key=lambda x: x[1], reverse=True))
@@ -246,7 +250,7 @@ def _parse_analysis_response(response: str) -> dict[str, Any]:
     # This is a simple parser that looks for markdown sections
     # In production, you might want to use a more sophisticated approach
 
-    sections = {
+    sections: dict[str, Any] = {
         'overview': '',
         'tech_stack': {},
         'architecture': {},
@@ -256,8 +260,8 @@ def _parse_analysis_response(response: str) -> dict[str, Any]:
         'code_quality': {},
     }
 
-    current_section = None
-    current_content = []
+    current_section: str | None = None
+    current_content: list[str] = []
 
     lines = response.split('\n')
 

@@ -48,6 +48,7 @@ dev = [
     "pytest-cov>=6.0.0",
     "pytest-mock>=3.14.0",
     "aioresponses>=0.7.7",
+    "pytest-snapshot>=0.9.0",
 ]
 
 [project.scripts]
@@ -103,9 +104,9 @@ pythonVersion = "3.12"
 typeCheckingMode = "strict"
 reportMissingTypeStubs = false
 reportUnnecessaryIsInstance = false
-reportUnnecessaryTypeIgnoreComment = true
+reportUnnecessaryTypeIgnoreComment = false
 reportMissingModuleSource = false
-include = ["gemini_claude_code_mcp"]
+include = ["gemini_claude_code_mcp", "tests"]
 venvPath = ".venv"
 
 [build-system]

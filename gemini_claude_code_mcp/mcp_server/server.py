@@ -4,10 +4,11 @@ from typing import Any
 
 from fastmcp import FastMCP
 
-from gemini_claude_code_mcp.tools.code_explain_tool import register_code_explain_tools
+from gemini_claude_code_mcp.tools.summarize_project_tool import register_summarize_project_tool
 
 mcp = FastMCP[Any]('Gemini claude code MCP')
 
-register_code_explain_tools(mcp)
+# Register available tools
+register_summarize_project_tool(mcp)
 
 __all__ = ['mcp']

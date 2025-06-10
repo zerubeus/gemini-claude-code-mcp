@@ -93,7 +93,7 @@ class FileCollector:
                 return None
 
             # Read file content
-            async with aiofiles.open(file_path, encoding='utf-8', errors='ignore') as f:
+            async with aiofiles.open(file_path, encoding='utf-8', errors='ignore') as f:  # type: ignore
                 content = await f.read()
 
             # Count tokens
