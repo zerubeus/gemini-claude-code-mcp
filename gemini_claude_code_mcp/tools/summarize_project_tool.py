@@ -1,7 +1,7 @@
 """Project summarization tool for analyzing codebases."""
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -20,9 +20,9 @@ def register_summarize_project_tool(mcp: FastMCP[Any]):
     @mcp.tool()
     async def summarize_project(  # type: ignore
         directory_path: str,
-        focus_areas: Optional[list[str]] = None,
-        include_patterns: Optional[list[str]] = None,
-        exclude_patterns: Optional[list[str]] = None,
+        focus_areas: list[str] | None,
+        include_patterns: list[str] | None,
+        exclude_patterns: list[str] | None,
     ) -> dict[str, Any]:
         """Generate a comprehensive summary of a project/codebase.
 
